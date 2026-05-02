@@ -1,31 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>To-Do Pro</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Legend Music Player</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div class="container">
+<div class="app">
 
-    <h1>To-Do Pro</h1>
+  <div class="top">
+    <h1>🎧 Music Player</h1>
+    <button onclick="toggleTheme()" id="themeBtn">🌙</button>
+  </div>
 
-    <button onclick="toggleTheme()" class="theme-btn">🌙 Toggle Theme</button>
+  <!-- SEARCH -->
+  <input type="text" id="search" placeholder="Search songs...">
 
-    <div class="input-area">
-        <input type="text" id="taskInput" placeholder="Enter task">
-        <button onclick="addTask()">Add</button>
-    </div>
+  <h2 id="title">Select a song</h2>
 
-    <p id="counter">Total Tasks: 0</p>
+  <!-- PROGRESS -->
+  <input type="range" id="progress" value="0">
 
-    <ul id="taskList"></ul>
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button onclick="prevSong()">⏮</button>
+    <button onclick="togglePlay()">▶/⏸</button>
+    <button onclick="nextSong()">⏭</button>
+  </div>
+
+  <!-- PLAYLIST -->
+  <ul id="playlist"></ul>
+
+  <audio id="audio"></audio>
 
 </div>
 
 <script src="script.js"></script>
-
 </body>
 </html>

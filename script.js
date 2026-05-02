@@ -1,90 +1,104 @@
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+const songs = [
+  { name: "Song 1", file: "songs/song1.mp3" },
+  { name: "Song 2", file: "songs/song2.mp3" },
+  { name: "Song 3", file: "songs/song3.mp3" },
+  { name: "Song 4", file: "songs/song4.mp3" }
+];
 
-window.onload = function () {
-    tasks.forEach(task => renderTask(task));
-    updateCounter();
-};
+let current = 0;
+let filtered = [...songs];
 
-// ➕ ADD TASK
-function addTask() {
-    let input = document.getElementById("taskInput");
-    let text = input.value.trim();
+const audio = document.getElementById("audio");
+const list = document.getElementById("playlist");
+const title = document.getElementById("title");
+const search = document.getElementById("search");
+const progress = document.getElementById("progress");
+const body = document.body;
 
-    if (text === "") return;
+// LOAD SONG
+function loadSong() {
+  audio.src = filtered[current].file;
+  title.textContent = filtered[current].name;
+  highlight();
+}
 
-    let task = {
-        id: Date.now(),
-        text: text
+// PLAY / PAUSE
+function togglePlay() {
+  audio.paused ? audio.play() : audio.pause();
+}
+
+// NEXT
+function nextSong() {
+  current = (current + 1) % filtered.length;
+  loadSong();
+  audio.play();
+}
+
+// PREV
+function prevSong() {
+  current = (current - 1 + filtered.length) % filtered.length;
+  loadSong();
+  audio.play();
+}
+
+// PLAYLIST RENDER
+function renderList(data) {
+  list.innerHTML = "";
+
+  data.forEach((song, index) => {
+    const li = document.createElement("li");
+    li.textContent = song.name;
+
+    li.onclick = () => {
+      current = index;
+      loadSong();
+      audio.play();
     };
 
-    tasks.push(task);
-    save();
-    renderTask(task);
-
-    input.value = "";
-    updateCounter();
+    list.appendChild(li);
+  });
 }
 
-// 🖥️ RENDER TASK
-function renderTask(task) {
-    let li = document.createElement("li");
+renderList(filtered);
 
-    let span = document.createElement("span");
-    span.textContent = task.text;
-
-    let actions = document.createElement("div");
-    actions.className = "actions";
-
-    // EDIT
-    let editBtn = document.createElement("button");
-    editBtn.textContent = "Edit";
-    editBtn.onclick = function () {
-        let newText = prompt("Edit task:", task.text);
-        if (newText) {
-            task.text = newText;
-            save();
-            refreshUI();
-        }
-    };
-
-    // DELETE
-    let delBtn = document.createElement("button");
-    delBtn.textContent = "Delete";
-    delBtn.className = "delete";
-    delBtn.onclick = function () {
-        tasks = tasks.filter(t => t.id !== task.id);
-        save();
-        refreshUI();
-    };
-
-    actions.appendChild(editBtn);
-    actions.appendChild(delBtn);
-
-    li.appendChild(span);
-    li.appendChild(actions);
-
-    document.getElementById("taskList").appendChild(li);
+// HIGHLIGHT ACTIVE
+function highlight() {
+  document.querySelectorAll("#playlist li").forEach((li, i) => {
+    li.classList.toggle("active", i === current);
+  });
 }
 
-// 🔄 REFRESH UI
-function refreshUI() {
-    document.getElementById("taskList").innerHTML = "";
-    tasks.forEach(task => renderTask(task));
-    updateCounter();
-}
+// SEARCH BAR
+search.addEventListener("input", (e) => {
+  const val = e.target.value.toLowerCase();
 
-// 💾 SAVE
-function save() {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-}
+  filtered = songs.filter(song =>
+    song.name.toLowerCase().includes(val)
+  );
 
-// 📊 COUNTER
-function updateCounter() {
-    document.getElementById("counter").textContent =
-        "Total Tasks: " + tasks.length;
-}
+  current = 0;
+  renderList(filtered);
+  loadSong();
+});
 
-// 🌙 DARK MODE
+// PROGRESS BAR
+audio.addEventListener("timeupdate", () => {
+  progress.value = (audio.currentTime / audio.duration) * 100 || 0;
+});
+
+progress.addEventListener("input", () => {
+  audio.currentTime = (progress.value / 100) * audio.duration;
+});
+
+// AUTO NEXT
+audio.addEventListener("ended", nextSong);
+
+// DARK MODE
 function toggleTheme() {
-    document.body.classList.toggle("dark");
+  body.classList.toggle("light");
+  document.getElementById("themeBtn").textContent =
+    body.classList.contains("light") ? "🌙" : "☀️";
 }
+
+// INIT
+loadSong();
